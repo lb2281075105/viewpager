@@ -39,27 +39,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-    }
-
-    @Override
-    public void onPageSelected(int position) { // 新的条目被选中
-        tv_desc.setText(contentDescs[position]);
-        for (int i = 0;i < ll_point_container.getChildCount();i++){
-            View childAt = ll_point_container.getChildAt(i);
-            childAt.setEnabled(false);
-        }
-        View child = ll_point_container.getChildAt(position);
-        child.setEnabled(true);
-        Log.e("HHH",position+"");
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
 
     private void initData() {
         int[] imageRes = new int[]{R.drawable.a,R.drawable.b,R.drawable.c,R.drawable.d,R.drawable.e};
@@ -90,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             pointView.setBackgroundResource(R.drawable.selector_bg_point);
             ll_point_container.addView(pointView,layoutParams);
         }
-
+        ll_point_container.getChildAt(0).setEnabled(true);
+        tv_desc.setText(contentDescs[0]);
     }
 
     private void initAdapter() {
@@ -103,21 +84,43 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         tv_desc = findViewById(R.id.tv_desc);
         ll_point_container = findViewById(R.id.ll_point_container);
-        viewpager.setOnPageChangeListener(this); //滚动监听
-        ll_point_container.getChildAt(0).setEnabled(true);
-        tv_desc.setText(contentDescs[0]);
+        viewpager.setOnPageChangeListener(this); //设置滚动监听
+
+    }
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
     }
 
+    @Override
+    public void onPageSelected(int position) { // 新的条目被选中
+        int newPosition = position % imageViewArrayList.size();
+
+        tv_desc.setText(contentDescs[newPosition]);
+        for (int i = 0;i < ll_point_container.getChildCount();i++){
+            View childAt = ll_point_container.getChildAt(i);
+            childAt.setEnabled(false);
+        }
+        View child = ll_point_container.getChildAt(newPosition);
+        child.setEnabled(true);
+        Log.e("HHH",newPosition+"");
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
     class MyAdapter extends PagerAdapter {
         @Override
         public int getCount() {
-            return imageViewArrayList.size();
+            return Integer.MAX_VALUE;
         }
 
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
-            ImageView imageView = imageViewArrayList.get(position);
+            int newPosition = position % imageViewArrayList.size();
+            ImageView imageView = imageViewArrayList.get(newPosition);
             container.addView(imageView);
 
             return imageView;
