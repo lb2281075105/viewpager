@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private void initAdapter() {
         viewpager.setAdapter(new MyAdapter());
+//        viewpager.setCurrentItem(Integer.MAX_VALUE / 2 - Integer.MAX_VALUE / 2 % imageViewArrayList.size());
+        viewpager.setCurrentItem(5000000);
     }
 
 
