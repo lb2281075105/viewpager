@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,13 +29,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private TextView tv_desc;
     private boolean isRunning = false;
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
 
-
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +50,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         initAdapter();
 
         // 开始轮训
-        new Thread(){
+        initStart();
+    }
+
+    private void initStart() {
+        new Thread() {
             @Override
             public void run() {
                 isRunning = true;
@@ -67,14 +73,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     });
 //                mHandler.sendEmptyMessage(0);
                 }
+
+
             }
         }.start();
     }
 
 
-
     private void initData() {
-        int[] imageRes = new int[]{R.drawable.a,R.drawable.b,R.drawable.c,R.drawable.d,R.drawable.e};
+        int[] imageRes = new int[]{R.drawable.a, R.drawable.b, R.drawable.c, R.drawable.d, R.drawable.e};
 
         imageViewArrayList = new ArrayList<>();
         // 文本描述
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         ImageView imageView;
         View pointView;
         LayoutParams layoutParams;
-        for (int i = 0;i < imageRes.length;i++){
+        for (int i = 0; i < imageRes.length; i++) {
             imageView = new ImageView(this);
             imageView.setBackgroundResource(imageRes[i]);
             imageViewArrayList.add(imageView);
@@ -100,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 layoutParams.leftMargin = 10;
             pointView.setEnabled(false);
             pointView.setBackgroundResource(R.drawable.selector_bg_point);
-            ll_point_container.addView(pointView,layoutParams);
+            ll_point_container.addView(pointView, layoutParams);
         }
         ll_point_container.getChildAt(0).setEnabled(true);
         tv_desc.setText(contentDescs[0]);
@@ -120,6 +127,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         ll_point_container = findViewById(R.id.ll_point_container);
         viewpager.setOnPageChangeListener(this); //设置滚动监听
 
+        viewpager.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        isRunning = false;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        isRunning = false;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isRunning = true;
+                        break;
+                }
+                Log.e("motionEvent", motionEvent.getAction() + "");
+                return false;
+            }
+        });
     }
 
     @Override
@@ -132,13 +157,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         int newPosition = position % imageViewArrayList.size();
 
         tv_desc.setText(contentDescs[newPosition]);
-        for (int i = 0;i < ll_point_container.getChildCount();i++){
+        for (int i = 0; i < ll_point_container.getChildCount(); i++) {
             View childAt = ll_point_container.getChildAt(i);
             childAt.setEnabled(false);
         }
         View child = ll_point_container.getChildAt(newPosition);
         child.setEnabled(true);
-        Log.e("HHH",newPosition+"");
     }
 
     @Override
