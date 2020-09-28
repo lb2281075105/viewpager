@@ -6,6 +6,8 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private LinearLayout ll_point_container;
     private String[] contentDescs;
     private TextView tv_desc;
+    private boolean isRunning = false;
 
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +47,28 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         // controller
         initAdapter();
 
+        // 开始轮训
+        new Thread(){
+            @Override
+            public void run() {
+                isRunning = true;
+                while (isRunning){
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            viewpager.setCurrentItem(viewpager.getCurrentItem() + 1);
+                        }
+                    });
+//                mHandler.sendEmptyMessage(0);
+                }
+            }
+        }.start();
     }
 
 
@@ -89,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         viewpager.setOnPageChangeListener(this); //设置滚动监听
 
     }
+
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -112,6 +145,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public void onPageScrollStateChanged(int state) {
 
     }
+
+    @Override
+    protected void onDestroy() {
+        isRunning = false;
+        super.onDestroy();
+    }
+
     class MyAdapter extends PagerAdapter {
         @Override
         public int getCount() {
